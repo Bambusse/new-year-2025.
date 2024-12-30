@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Happy New Year 2025!</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(to bottom, #002D62, #A1C4FD);
+            color: #fff;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        h1 {
+            font-size: 3em;
+            margin: 0;
+            animation: glow 1.5s infinite alternate;
+        }
+
+        @keyframes glow {
+            from { text-shadow: 0 0 10px #FFD700; }
+            to { text-shadow: 0 0 20px #FFA500; }
+        }
+
+        #countdown {
+            font-size: 2.5em;
+            margin: 20px 0;
+            text-align: center;
+        }
+
+        #fireworks {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+        }
+    </style>
+</head>
+<body>
+    <canvas id="fireworks"></canvas>
+    <h1>Happy New Year 2025!</h1>
+    <div id="countdown"></div>
+
+    <script>
+        // Countdown Timer
+        const countdownElement = document.getElementById('countdown');
+        const newYear = new Date('January 1, 2025 00:00:00').getTime();
+
+        function updateCountdown() {
+            const now = new Date().getTime();
+            const difference = newYear - now;
+
+            if (difference <= 0) {
+                countdownElement.innerHTML = '🎉 Welcome to 2025! 🎉';
+                clearInterval(countdownInterval);
+            } else {
+                const days = Math.floor(difference / (1000 * 60 * 60 * 24));
+                const hours = Math.floor((difference % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                const minutes = Math.floor((difference % (1000 * 60 * 60)) / (1000 * 60));
+                const seconds = Math.floor((difference % (1000 * 60)) / 1000);
+
+                countdownElement.innerHTML = `${days}d ${hours}h ${minutes}m ${seconds}s`;
+            }
+        }
+
+        const countdownInterval = setInterval(updateCountdown, 1000);
+        updateCountdown();
+
+        // Fireworks Animation
+        const canvas = document.getElementById('fireworks');
+        const ctx = canvas.getContext('2d');
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+
+        const fireworks = [];
+        const colors = ['#FF5733', '#FFC300', '#DAF7A6', '#C70039', '#900C3F'];
+
+        function createFirework() {
+            return {
+                x: Math.random() * canvas.width,
+                y: canvas.height,
+                targetX: Math.random() * canvas.width,
+                targetY: Math.random() * canvas.height * 0.5,
+                size: Math.random() * 3 + 2,
+                color: colors[Math.floor(Math.random() * colors.length)],
+                explode: false,
+                opacity: 1,
+            };
+        }
+
+        function drawFirework(firework) {
+            ctx.beginPath();
+            ctx.arc(firework.x, firework.y, firework.size, 0, Math.PI * 2);
+            ctx.fillStyle = `rgba(${hexToRGB(firework.color)},${firework.opacity})`;
+            ctx.fill();
+        }
+
+        function hexToRGB(hex) {
+            const bigint = parseInt(hex.slice(1), 16);
+            return `${(bigint >> 16) & 255}, ${(bigint >> 8) & 255}, ${bigint & 255}`;
+        }
+
+        function updateFireworks() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            fireworks.forEach((firework, index) => {
+                if (!firework.explode) {
+                    firework.x += (firework.targetX - firework.x) * 0.02;
+                    firework.y -= (firework.y - firework.targetY) * 0.02;
+
+                    if (Math.abs(firework.x - firework.targetX) < 5 && Math.abs(firework.y - firework.targetY) < 5) {
+                        firework.explode = true;
+                    }
+                } else {
+                    firework.size *= 0.95;
+                    firework.opacity *= 0.95;
+
+                    if (firework.size < 0.5 || firework.opacity < 0.1) {
+                        fireworks.splice(index, 1);
+                    }
+                }
+
+                drawFirework(firework);
+            });
+
+            while (fireworks.length < 50) {
+                fireworks.push(createFirework());
+            }
+
+            requestAnimationFrame(updateFireworks);
+        }
+
+        updateFireworks();
+    </script>
+</body>
+</html>
